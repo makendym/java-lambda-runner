@@ -1,6 +1,6 @@
 # Java Lambda Runner
 
-A TypeScript-based AWS Lambda function that provides Java execution capabilities within a serverless environment. This project combines the power of Node.js and Java to create a flexible serverless solution.
+A TypeScript-based AWS Lambda function that provides Java execution capabilities within a serverless environment. This project combines the power of Node.js and Java to create a flexible serverless solution. The Lambda function is exposed through an API Gateway endpoint, allowing you to compile and run Java code via HTTP requests.
 
 ## Features
 
@@ -9,6 +9,8 @@ A TypeScript-based AWS Lambda function that provides Java execution capabilities
 - Docker containerization for consistent deployment
 - UUID generation capabilities
 - AWS Lambda integration
+- REST API endpoint for Java code execution
+- CORS support for web-based clients
 
 ## Prerequisites
 
@@ -58,7 +60,43 @@ docker build -t java-lambda-runner .
 
 ## Deployment
 
-The Lambda function can be deployed to AWS using the provided Docker image. The function is configured to use the handler in `dist/handler.js`.
+1. Deploy the Lambda function to AWS using the provided Docker image
+2. Create an API Gateway REST API and integrate it with the Lambda function
+3. Configure CORS in API Gateway to allow web-based clients to access the endpoint
+
+The function is configured to use the handler in `dist/handler.js`.
+
+## API Usage
+
+The API endpoint accepts POST requests with Java code in the request body. Here's an example using curl:
+
+```bash
+curl -X POST \
+  https://your-api-gateway-url/execute \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "code": "System.out.println(\"Hello, World!\");"
+  }'
+```
+
+You can also send complete Java classes:
+
+```bash
+curl -X POST \
+  https://your-api-gateway-url/execute \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "code": "public class HelloWorld { public static void main(String[] args) { System.out.println(\"Hello, World!\"); } }"
+  }'
+```
+
+The API will return a JSON response with the following structure:
+```json
+{
+  "output": "Program output here",
+  "error": "Error message if any"
+}
+```
 
 ## Project Structure
 
@@ -71,6 +109,13 @@ java-lambda-runner/
 ├── tsconfig.json     # TypeScript configuration
 └── .gitignore       # Git ignore rules
 ```
+
+## Security Considerations
+
+- The API endpoint is public and should be secured appropriately in production
+- Consider implementing rate limiting to prevent abuse
+- Monitor Lambda execution times and memory usage
+- Set appropriate timeouts for long-running Java programs
 
 ## License
 
